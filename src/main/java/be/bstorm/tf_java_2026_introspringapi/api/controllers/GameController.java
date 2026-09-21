@@ -4,6 +4,7 @@ import be.bstorm.tf_java_2026_introspringapi.api.model.game.requests.GameRequest
 import be.bstorm.tf_java_2026_introspringapi.api.model.game.responses.GameResponse;
 import be.bstorm.tf_java_2026_introspringapi.bll.services.GameService;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.Game;
+import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -46,6 +49,7 @@ public class GameController {
         return ResponseEntity.ok(gameResponse);
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PostMapping
     public ResponseEntity<Void> save(
             @Valid @RequestBody GameRequest gameRequest
@@ -64,6 +68,7 @@ public class GameController {
         return ResponseEntity.created(uri).build();
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PutMapping("/{id}")
     public ResponseEntity<Void>  update(
             @PathVariable Integer id,
@@ -76,12 +81,23 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Integer id
     ){
         gameService.delete(id);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/wishlist/{gameId}")
+    public ResponseEntity<Void> wishlist(
+            @PathVariable Integer gameId,
+            @AuthenticationPrincipal User user
+    ) {
+        
         return ResponseEntity.noContent().build();
     }
 }
