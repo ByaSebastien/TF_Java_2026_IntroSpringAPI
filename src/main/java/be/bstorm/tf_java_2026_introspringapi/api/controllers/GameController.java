@@ -1,0 +1,87 @@
+package be.bstorm.tf_java_2026_introspringapi.api.controllers;
+
+import be.bstorm.tf_java_2026_introspringapi.api.model.game.requests.GameRequest;
+import be.bstorm.tf_java_2026_introspringapi.api.model.game.responses.GameResponse;
+import be.bstorm.tf_java_2026_introspringapi.bll.services.GameService;
+import be.bstorm.tf_java_2026_introspringapi.dl.entities.Game;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/Game")
+public class GameController {
+
+    private final GameService gameService;
+
+    @GetMapping
+    public ResponseEntity<Page<GameResponse>> find(
+        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+        @RequestParam(name = "size", required = false, defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<Game> games = gameService.find(pageable);
+        Page<GameResponse> responsePage = games.map(GameResponse::fromGame);
+
+        return ResponseEntity.ok(responsePage);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GameResponse> findById(
+            @PathVariable Integer id
+    ) {
+        Game game = gameService.findById(id);
+
+        GameResponse gameResponse = GameResponse.fromGame(game);
+
+        return ResponseEntity.ok(gameResponse);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> save(
+            @Valid @RequestBody GameRequest gameRequest
+    ) {
+
+        Game game = gameRequest.toGame();
+
+        Game response = gameService.save(game);
+
+        URI uri =  ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.created(uri).build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void>  update(
+            @PathVariable Integer id,
+            @Valid @RequestBody GameRequest gameRequest
+    ) {
+        Game game = gameRequest.toGame();
+
+        gameService.update(id, game);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Integer id
+    ){
+        gameService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+}

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: TF_Java_2026_IntroSpringAPI
+  datasource:
+    url: jdbc:postgresql://localhost:5432/intro_spring_api
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  port: 8080
