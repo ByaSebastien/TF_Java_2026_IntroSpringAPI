@@ -53,9 +53,10 @@ public class Seed implements CommandLineRunner {
         if(gameRepository.count() == 0) {
 
             List<Game> games = List.of(
-                    new Game("Devil may cry"),
-                    new Game("Onimusha"),
-                    new Game("League of legend")
+                    new Game("Devil may cry",2001, 5000),
+                    new Game("Onimusha",2001, 3000),
+                    new Game("Resident evil",1996, 10000),
+                    new Game("League of legend",2009, 1000000)
             );
 
             gameRepository.saveAll(games);

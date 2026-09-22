@@ -1,5 +1,9 @@
 package be.bstorm.tf_java_2026_introspringapi.bll.services.impls;
 
+import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.role.RoleNotFoundException;
+import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.user.UserAlreadyExistException;
+import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.user.UserInvalidPasswordException;
+import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.user.UserNotFoundException;
 import be.bstorm.tf_java_2026_introspringapi.bll.services.AuthService;
 import be.bstorm.tf_java_2026_introspringapi.dal.repositories.RoleRepository;
 import be.bstorm.tf_java_2026_introspringapi.dal.repositories.UserRepository;
@@ -23,13 +27,13 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     @Override
     public User register(User user) {
         if(userRepository.existsByUsername(user.getUsername())) {
-            throw new UsernameNotFoundException("Username " + user.getUsername() + " already exists");
+            throw new UserAlreadyExistException();
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleRepository.findByName("user")
-                .orElseThrow();
+                .orElseThrow(() -> new RoleNotFoundException("Role 'user' not found"));
 
         user.setRole(role);
 
@@ -39,10 +43,10 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     @Override
     public User login(String username, String password) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow();
+                .orElseThrow(() -> new UserNotFoundException("User with username " + username + " not found"));
 
         if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new RuntimeException("Invalid password");
+            throw new UserInvalidPasswordException("Invalid password for user " + username);
         }
 
         return user;
@@ -51,7 +55,6 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username)
-                );
+                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found"));
     }
 }

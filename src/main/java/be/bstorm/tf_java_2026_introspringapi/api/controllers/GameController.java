@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/Game")
+@RequestMapping("/game")
 public class GameController {
 
     private final GameService gameService;
@@ -29,10 +30,11 @@ public class GameController {
     @GetMapping
     public ResponseEntity<Page<GameResponse>> find(
         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-        @RequestParam(name = "size", required = false, defaultValue = "10") int size
+        @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+        @RequestParam Map<String,String> params
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<Game> games = gameService.find(pageable);
+        Page<Game> games = gameService.find(params, pageable);
         Page<GameResponse> responsePage = games.map(GameResponse::fromGame);
 
         return ResponseEntity.ok(responsePage);

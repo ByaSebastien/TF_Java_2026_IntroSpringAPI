@@ -16,7 +16,17 @@ public class Game {
     @Column(nullable = false, length = 50)
     private String name;
 
-    public Game(String name) {
+    @Getter @Setter
+    @Column(nullable = false)
+    private int releaseYear;
+
+    @Getter @Setter
+    @Column(nullable = false)
+    private int price;
+
+    public Game(String name, int releaseYear, int price) {
         this.name = name;
+        this.releaseYear = releaseYear;
+        this.price = price;
     }
 }

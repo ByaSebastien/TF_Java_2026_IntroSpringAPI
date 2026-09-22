@@ -9,6 +9,7 @@ import be.bstorm.tf_java_2026_introspringapi.bll.services.AuthService;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -44,6 +46,8 @@ public class AuthController {
         User user = authService.login(request.username(), request.password());
 
         UserTokenResponse response = mapUser(user);
+
+        log.info("User {} logged in successfully", user.getUsername());
 
         return ResponseEntity.ok(response);
     }
