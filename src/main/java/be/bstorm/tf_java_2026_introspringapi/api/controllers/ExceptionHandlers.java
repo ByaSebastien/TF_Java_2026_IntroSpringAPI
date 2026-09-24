@@ -1,11 +1,13 @@
 package be.bstorm.tf_java_2026_introspringapi.api.controllers;
 
 import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.IntroSpringApiException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.sqm.PathElementException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.NonTransientDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -64,6 +66,16 @@ public class ExceptionHandlers {
         log.error("InvalidDataAccessApiUsageException: {}", ex.getMessage(), ex);
 
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(
+            value = JwtException.class
+    )
+    public ResponseEntity<?> handleJwtException(JwtException ex) {
+
+        log.error("JwtException: {}", ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
     @ExceptionHandler(

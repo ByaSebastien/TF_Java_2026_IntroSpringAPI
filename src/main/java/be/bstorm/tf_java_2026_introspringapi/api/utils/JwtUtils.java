@@ -68,4 +68,18 @@ public class JwtUtils {
 
         return now.after(claims.getIssuedAt()) && now.before(claims.getExpiration());
     }
+
+    public String generateRefreshToken(User user) {
+        return jwtBuilder
+                .subject(user.getUsername())
+                .claim("id", user.getId())
+                .claim("role", user.getRole().getName())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 604800 * 1000))
+                .compact();
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token);
+    }
 }
