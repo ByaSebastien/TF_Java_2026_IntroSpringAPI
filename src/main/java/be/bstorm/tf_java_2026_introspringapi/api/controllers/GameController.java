@@ -2,6 +2,7 @@ package be.bstorm.tf_java_2026_introspringapi.api.controllers;
 
 import be.bstorm.tf_java_2026_introspringapi.api.model.game.requests.GameRequest;
 import be.bstorm.tf_java_2026_introspringapi.api.model.game.responses.GameResponse;
+import be.bstorm.tf_java_2026_introspringapi.api.model.user.UserContext;
 import be.bstorm.tf_java_2026_introspringapi.bll.services.GameService;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.Game;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
@@ -102,7 +103,7 @@ public class GameController {
     @PatchMapping("/wishlist/{gameId}")
     public ResponseEntity<Void> wishlist(
             @PathVariable Integer gameId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserContext user
     ) {
         
         return ResponseEntity.noContent().build();

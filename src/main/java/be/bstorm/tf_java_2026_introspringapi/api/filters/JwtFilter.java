@@ -1,5 +1,6 @@
 package be.bstorm.tf_java_2026_introspringapi.api.filters;
 
+import be.bstorm.tf_java_2026_introspringapi.api.model.user.UserContext;
 import be.bstorm.tf_java_2026_introspringapi.api.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,14 +32,12 @@ public class JwtFilter extends OncePerRequestFilter {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
 
-            String username = jwtUtils.getUsername(token);
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserContext user = jwtUtils.getUser(token);
 
             UsernamePasswordAuthenticationToken upt = new UsernamePasswordAuthenticationToken(
-                    userDetails,
+                    user,
                     token,
-                    userDetails.getAuthorities()
+                    user.getAuthorities()
             );
 
             SecurityContextHolder.getContext().setAuthentication(upt);

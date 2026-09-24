@@ -1,12 +1,16 @@
 package be.bstorm.tf_java_2026_introspringapi.api.utils;
 
+import be.bstorm.tf_java_2026_introspringapi.api.model.user.UserContext;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtils {
@@ -29,7 +33,7 @@ public class JwtUtils {
                 .claim("id", user.getId())
                 .claim("role", user.getRole().getName())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 3600 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + 900 * 1000))
                 .compact();
     }
 
@@ -47,6 +51,14 @@ public class JwtUtils {
 
     public String getRole(String token) {
         return parseToken(token).get("role", String.class);
+    }
+
+    public UserContext getUser(String token) {
+        return new UserContext(
+                getId(token),
+                getUsername(token),
+                getRole(token)
+        );
     }
 
     public boolean validateToken(String token) {
