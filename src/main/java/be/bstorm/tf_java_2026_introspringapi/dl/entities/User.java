@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,6 +26,10 @@ public class User implements UserDetails {
     @Getter @Setter
     @Column(unique = true, nullable = false, length = 50)
     private String username;
+
+    @Getter @Setter
+    @Column
+    private LocalDate birthday;
 
     @Getter @Setter
     @Column(nullable = false)
@@ -45,6 +50,11 @@ public class User implements UserDetails {
         this();
         this.username = username;
         this.password = password;
+    }
+
+    public User(String username, String password, LocalDate birthday) {
+        this(username, password);
+        this.birthday = birthday;
     }
 
     public User(String username, String password, Role role) {

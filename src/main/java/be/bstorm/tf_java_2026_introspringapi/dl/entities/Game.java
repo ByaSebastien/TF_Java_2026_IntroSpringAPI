@@ -27,6 +27,10 @@ public class Game {
     @Column(nullable = false)
     private int price;
 
+    @Getter @Setter
+    @Column
+    private String imageUrl;
+
     public Game(String name, int releaseYear, int price) {
         this.name = name;
         this.releaseYear = releaseYear;

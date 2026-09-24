@@ -5,16 +5,19 @@ import be.bstorm.tf_java_2026_introspringapi.api.model.game.responses.GameRespon
 import be.bstorm.tf_java_2026_introspringapi.bll.services.GameService;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.Game;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -51,15 +54,16 @@ public class GameController {
         return ResponseEntity.ok(gameResponse);
     }
 
-    @PreAuthorize("hasAuthority('admin')")
-    @PostMapping
+//    @PreAuthorize("hasAuthority('admin')")
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> save(
-            @Valid @RequestBody GameRequest gameRequest
+            @Valid @RequestPart("gameRequest") GameRequest gameRequest,
+            @RequestPart(name = "image", required = false) MultipartFile image
     ) {
 
         Game game = gameRequest.toGame();
 
-        Game response = gameService.save(game);
+        Game response = gameService.save(game, image);
 
         URI uri =  ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -71,14 +75,15 @@ public class GameController {
     }
 
     @PreAuthorize("hasAuthority('admin')")
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void>  update(
             @PathVariable Integer id,
-            @Valid @RequestBody GameRequest gameRequest
+            @Valid @RequestPart(name = "gameRequest") GameRequest gameRequest,
+            @RequestPart(name = "image", required = false) MultipartFile image
     ) {
         Game game = gameRequest.toGame();
 
-        gameService.update(id, game);
+        gameService.update(id, game, image);
 
         return ResponseEntity.noContent().build();
     }
