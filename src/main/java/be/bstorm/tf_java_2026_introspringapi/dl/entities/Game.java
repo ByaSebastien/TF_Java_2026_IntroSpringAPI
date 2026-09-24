@@ -2,10 +2,13 @@ package be.bstorm.tf_java_2026_introspringapi.dl.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode @ToString
+@SoftDelete(columnName = "is_enable", strategy = SoftDeleteType.ACTIVE)
 public class Game {
 
     @Getter

@@ -2,6 +2,8 @@ package be.bstorm.tf_java_2026_introspringapi.dl.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,7 @@ import java.util.List;
 @Table(name = "user_")
 @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode @ToString
+@SoftDelete(columnName = "is_enable", strategy = SoftDeleteType.ACTIVE)
 public class User implements UserDetails {
 
     @Getter
@@ -34,6 +37,10 @@ public class User implements UserDetails {
     )
     private Role role;
 
+    @Getter
+    @Column(nullable = false, name = "is_enable", insertable = false, updatable = false)
+    private Boolean isEnable = true;
+
     public User(String username, String password) {
         this();
         this.username = username;
@@ -50,5 +57,10 @@ public class User implements UserDetails {
         return List.of(
                 new SimpleGrantedAuthority(role.getName())
         );
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isEnable;
     }
 }
