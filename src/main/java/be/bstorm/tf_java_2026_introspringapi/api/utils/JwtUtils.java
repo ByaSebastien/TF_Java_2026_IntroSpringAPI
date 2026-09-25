@@ -4,6 +4,7 @@ import be.bstorm.tf_java_2026_introspringapi.api.model.user.UserContext;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -23,8 +24,17 @@ public class JwtUtils {
     private final JwtBuilder jwtBuilder;
     private final JwtParser jwtParser;
 
-    public JwtUtils() {
-        String jwtSecret = "Yabadabadooooooooooooooooooooooooooooooooooooooooooo";
+    private final long accessTokenValidity; // 15 minutes
+    private final long refreshTokenValidity; // 7 days
+
+    public JwtUtils(
+            @Value("${jwt.secret}") String jwtSecret,
+            @Value("${jwt.accessTokenValidity}") long accessTokenValidity,
+            @Value("${jwt.refreshTokenValidity}") long refreshTokenValidity
+    ) {
+        this.accessTokenValidity = accessTokenValidity;
+        this.refreshTokenValidity = refreshTokenValidity;
+
         SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
         jwtBuilder = Jwts.builder().signWith(secretKey);
@@ -43,7 +53,7 @@ public class JwtUtils {
                 .claim("id", user.getId())
                 .claim("role", user.getRole().getName())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 900 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenValidity * 1000))
                 .compact();
     }
 
@@ -122,7 +132,7 @@ public class JwtUtils {
                 .claim("id", user.getId())
                 .claim("role", user.getRole().getName())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 604800 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenValidity * 1000))
                 .compact();
     }
 
