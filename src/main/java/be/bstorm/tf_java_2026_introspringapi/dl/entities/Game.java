@@ -5,11 +5,13 @@ import lombok.*;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 
+import java.io.Serializable;
+
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode @ToString
 @SoftDelete(columnName = "is_enable", strategy = SoftDeleteType.ACTIVE)
-public class Game {
+public class Game implements Serializable {
 
     @Getter
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

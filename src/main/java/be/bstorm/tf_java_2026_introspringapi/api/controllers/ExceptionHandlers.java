@@ -1,12 +1,14 @@
 package be.bstorm.tf_java_2026_introspringapi.api.controllers;
 
 import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.IntroSpringApiException;
+import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.RateLimitException;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.sqm.PathElementException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.NonTransientDataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,13 +21,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class ExceptionHandlers {
 
-    @ExceptionHandler(
-            value = IntroSpringApiException.class
-    )
+    @ExceptionHandler(value = RateLimitException.class)
+    public ResponseEntity<?> handleRateLimitException(RateLimitException ex) {
+        log.warn("RateLimitException: {}", ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-RateLimit-Remaining", String.valueOf(ex.getRemainingTokens()));
+        headers.add("Retry-After", String.valueOf(ex.getRetryAfterSeconds()));
+
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .headers(headers)
+                .body(Map.of(
+                        "error", "Rate limit exceeded",
+                        "message", ex.getBody().toString(),
+                        "retryAfter", ex.getRetryAfterSeconds()
+                ));
+    }
+
+    @ExceptionHandler(value = IntroSpringApiException.class)
     public ResponseEntity<?> handleIntroSpringApiException(IntroSpringApiException ex) {
 
         log.error("IntroSpringApiException: {}", ex.getMessage(), ex);

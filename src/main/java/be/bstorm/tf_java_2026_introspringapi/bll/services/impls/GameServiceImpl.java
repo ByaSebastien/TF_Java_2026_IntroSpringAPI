@@ -7,6 +7,9 @@ import be.bstorm.tf_java_2026_introspringapi.bll.utils.FileUtils;
 import be.bstorm.tf_java_2026_introspringapi.dal.repositories.GameRepository;
 import be.bstorm.tf_java_2026_introspringapi.dl.entities.Game;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,6 +27,7 @@ public class GameServiceImpl implements GameService {
     private final FileUtils fileUtils;
 
     @Override
+    @Cacheable(cacheNames = "games", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()") // TODO prendre en compte les filtres
     public Page<Game> find(Map<String, String> params, Pageable pageable) {
 
         // Au cas ou besoin de jointure
@@ -37,12 +41,14 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    @Cacheable(cacheNames = "game", key = "#id")
     public Game findById(Integer id) {
         return gameRepository.findById(id)
                 .orElseThrow();
     }
 
     @Override
+    @CacheEvict(cacheNames = "games", allEntries = true)
     public Game save(Game game, MultipartFile image) {
 
         if(image != null && !image.isEmpty()){
@@ -56,6 +62,10 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    @Caching(evict = {
+        @CacheEvict(value = "game", key = "#id"),
+        @CacheEvict(value = "games", allEntries = true)
+    })
     public void update(Integer id, Game game, MultipartFile image) {
         Game existing = gameRepository.findById(id)
                 .orElseThrow();
@@ -73,6 +83,10 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    @Caching(evict = {
+        @CacheEvict(value = "game", key = "#id"),
+        @CacheEvict(value = "games", allEntries = true)
+    })
     public void delete(Integer id) {
         if(!gameRepository.existsById(id)){
             throw new RuntimeException("Game with id " + id + " does not exist");
