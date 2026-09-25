@@ -7,6 +7,11 @@ import org.hibernate.annotations.SoftDeleteType;
 
 import java.io.Serializable;
 
+/**
+ * Représente un jeu en base de données.
+ * Le @SoftDelete supprime logiquement via is_enable=false (pas de DELETE physique).
+ * Cela permet de conserver l'historique tout en cachant les données logiquement supprimées.
+ */
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode @ToString
@@ -33,6 +38,12 @@ public class Game implements Serializable {
     @Column
     private String imageUrl;
 
+    /**
+     * Constructeur de commodité pour créer un jeu sans ID.
+     * @param name nom du jeu
+     * @param releaseYear année de sortie
+     * @param price prix en cents
+     */
     public Game(String name, int releaseYear, int price) {
         this.name = name;
         this.releaseYear = releaseYear;

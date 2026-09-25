@@ -15,11 +15,23 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+/**
+ * Utilitaire de gestion des fichiers uploadés.
+ * Sauvegarde les fichiers sur disque avec UUID pour éviter les collisions.
+ * Charge et sert les fichiers via le serveur.
+ */
 @Component
 public class FileUtils {
 
     private final Path uploadDir = Paths.get("uploads");
 
+    /**
+     * Sauvegarde un fichier uploadé dans le répertoire uploads/.
+     * Génère un UUID pour renommer le fichier et éviter les collisions.
+     * @param file fichier MultipartFile du client
+     * @return chemin relatif du fichier sauvegardé (/uploads/uuid_filename)
+     * @throws RuntimeException si l'écriture échoue
+     */
     public String saveFile(MultipartFile file) {
 
         try {
@@ -38,6 +50,12 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Charge un fichier sous forme de bytes.
+     * @param filename nom du fichier dans uploads/
+     * @return contenu du fichier en bytes
+     * @throws RuntimeException si le fichier n'existe pas
+     */
     public byte[] loadFile(String filename) {
         Path filePath = Paths.get("uploads", filename);
 
@@ -52,6 +70,13 @@ public class FileUtils {
         return fileContent;
     }
 
+    /**
+     * Charge un fichier comme Spring Resource.
+     * Permet le téléchargement/affichage direct via ResponseEntity.
+     * @param filename nom du fichier dans uploads/
+     * @return Resource Spring
+     * @throws RuntimeException si le fichier n'existe pas
+     */
     public Resource loadFileAsResource(String filename) {
         try {
             Path filePath = uploadDir.resolve(filename).normalize();

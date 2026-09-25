@@ -12,10 +12,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * Configuration Redis pour le caching et le rate limiting.
+ * Active l'annotation @Cacheable/@CacheEvict pour l'optimisation des performances.
+ * Utilise StringRedisTemplate pour le rate limiting avec bucket à jetons.
+ */
 @Configuration
 @EnableCaching
 public class RedisConfig {
 
+    /**
+     * Gestionnaire de cache Redis.
+     * TTL par défaut: 15 minutes pour les entrées en cache.
+     * @param connectionFactory usine de connexion Redis
+     * @return gestionnaire RedisCacheManager
+     */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
@@ -24,6 +35,11 @@ public class RedisConfig {
         return RedisCacheManager.create(connectionFactory);
     }
 
+    /**
+     * Template Redis générique pour les objets.
+     * @param connectionFactory usine de connexion Redis
+     * @return RedisTemplate configuré
+     */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -40,6 +56,12 @@ public class RedisConfig {
         return template;
     }
 
+    /**
+     * Template Redis spécialisé pour les Strings.
+     * Utilisé par RateLimitService pour gérer les tokens.
+     * @param connectionFactory usine de connexion Redis
+     * @return StringRedisTemplate configuré
+     */
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
         return new StringRedisTemplate(connectionFactory);

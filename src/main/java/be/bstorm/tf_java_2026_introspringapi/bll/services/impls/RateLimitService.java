@@ -1,16 +1,30 @@
-package be.bstorm.tf_java_2026_introspringapi.bll.services;
+package be.bstorm.tf_java_2026_introspringapi.bll.services.impls;
 
 import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.RateLimitException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * Gère la limitation de débit (rate limiting) via Redis.
+ * Implémente un bucket à jetons avec refill périodique.
+ * Chaque utilisateur/IP a une limite de requêtes par fenêtre de temps.
+ */
 @Service
 @RequiredArgsConstructor
 public class RateLimitService {
 
     private final StringRedisTemplate redisTemplate;
 
+    /**
+     * Vérifie et applique la limite de débit.
+     * Lance une exception si la limite est dépassée.
+     * @param identifier clé unique (username ou IP)
+     * @param endpoint route/méthode contrôlée
+     * @param maxRequests nombre max de requêtes
+     * @param windowSeconds fenêtre de temps en secondes
+     * @throws RateLimitException si la limite est dépassée
+     */
     public void checkRateLimit(String identifier, String endpoint, int maxRequests, int windowSeconds) {
         String key = generateKey(identifier, endpoint);
 
@@ -54,6 +68,14 @@ public class RateLimitService {
         redisTemplate.expire(key, java.time.Duration.ofSeconds(windowSeconds));
     }
 
+    /**
+     * Retourne le nombre de jetons restants.
+     * @param identifier clé unique
+     * @param endpoint route/méthode
+     * @param maxRequests nombre max de requêtes
+     * @param windowSeconds fenêtre de temps
+     * @return nombre de jetons disponibles
+     */
     public int getRemainingTokens(String identifier, String endpoint, int maxRequests, int windowSeconds) {
         String key = generateKey(identifier, endpoint);
 

@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Représente un utilisateur en base de données.
+ * Implémente UserDetails pour l'intégration Spring Security.
+ * Le @SoftDelete désactive logiquement les utilisateurs via is_enable=false.
+ */
 @Entity
 @Table(name = "user_")
 @NoArgsConstructor @AllArgsConstructor
@@ -46,17 +51,34 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "is_enable", insertable = false, updatable = false)
     private Boolean isEnable = true;
 
+    /**
+     * Constructeur avec identifiants minimaux.
+     * @param username nom unique de l'utilisateur
+     * @param password mot de passe (sera hashé par BCrypt dans le service)
+     */
     public User(String username, String password) {
         this();
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * Constructeur avec date de naissance.
+     * @param username nom unique de l'utilisateur
+     * @param password mot de passe
+     * @param birthday date de naissance
+     */
     public User(String username, String password, LocalDate birthday) {
         this(username, password);
         this.birthday = birthday;
     }
 
+    /**
+     * Constructeur avec rôle.
+     * @param username nom unique de l'utilisateur
+     * @param password mot de passe
+     * @param role rôle attribué (USER ou ADMIN)
+     */
     public User(String username, String password, Role role) {
         this(username, password);
         this.role = role;

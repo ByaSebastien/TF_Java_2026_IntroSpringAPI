@@ -24,6 +24,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * Endpoints REST pour la gestion des Games.
+ * Expose les opérations CRUD avec support de pagination et recherche.
+ * Les opérations sensibles (POST, PUT, DELETE) sont protégées selon leur contexte.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/game")
@@ -31,6 +36,14 @@ public class GameController {
 
     private final GameService gameService;
 
+    /**
+     * Récupère une page de Games avec filtres optionnels.
+     * Accepte page, size et paramètres de recherche dynamiques.
+     * @param page numéro de page (0-indexed, défaut 0)
+     * @param size taille page (défaut 10)
+     * @param params filtres additionnels (name, gt_releaseYear, etc.)
+     * @return Page de GameResponse, 200 OK
+     */
     @GetMapping
     public ResponseEntity<Page<GameResponse>> find(
         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
@@ -44,6 +57,11 @@ public class GameController {
         return ResponseEntity.ok(responsePage);
     }
 
+    /**
+     * Récupère un Game par son ID.
+     * @param id identifiant du Game
+     * @return GameResponse, 200 OK ou 404 si non trouvé
+     */
     @GetMapping("/{id}")
     public ResponseEntity<GameResponse> findById(
             @PathVariable Integer id
@@ -55,7 +73,13 @@ public class GameController {
         return ResponseEntity.ok(gameResponse);
     }
 
-//    @PreAuthorize("hasAuthority('admin')")
+    /**
+     * Crée un nouveau Game avec upload image optionnel.
+     * Supporte application/json + multipart/form-data.
+     * @param gameRequest données du Game
+     * @param image fichier image optionnel
+     * @return 201 Created avec Location header
+     */
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> save(
             @Valid @RequestPart("gameRequest") GameRequest gameRequest,
@@ -75,6 +99,14 @@ public class GameController {
         return ResponseEntity.created(uri).build();
     }
 
+    /**
+     * Modifie un Game existant.
+     * Nécessite le rôle admin.
+     * @param id identifiant du Game
+     * @param gameRequest données mises à jour
+     * @param image nouvelle image optionnelle
+     * @return 204 No Content
+     */
     @PreAuthorize("hasAuthority('admin')")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void>  update(
@@ -89,6 +121,12 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Supprime un Game (soft-delete logique).
+     * Nécessite le rôle admin.
+     * @param id identifiant du Game
+     * @return 204 No Content
+     */
     @PreAuthorize("hasAuthority('admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -99,6 +137,13 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Ajoute/retire un Game de la wishlist (placeholder).
+     * Nécessite d'être authentifié.
+     * @param gameId identifiant du Game
+     * @param user contexte utilisateur connecté
+     * @return 204 No Content
+     */
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/wishlist/{gameId}")
     public ResponseEntity<Void> wishlist(

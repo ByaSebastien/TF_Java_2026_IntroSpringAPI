@@ -13,6 +13,11 @@
 //
 //import java.util.List;
 //
+///**
+// * Initialise les données de la base de données au démarrage de l'application.
+// * Crée des rôles (USER, ADMIN) et des utilisateurs de test si la BDD est vide.
+// * Utile pour le développement et les tests automatisés.
+// */
 //@Component
 //@RequiredArgsConstructor
 //public class Seed implements CommandLineRunner {
@@ -22,6 +27,11 @@
 //    private final RoleRepository roleRepository;
 //    private final GameRepository gameRepository;
 //
+//    /**
+//     * Exécuté au démarrage de Spring.
+//     * Insère les données initiales si la BDD est vide.
+//     * @param args arguments de ligne de commande
+//     */
 //    @Override
 //    public void run(String... args) throws Exception {
 //

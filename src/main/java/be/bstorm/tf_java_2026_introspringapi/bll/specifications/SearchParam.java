@@ -7,6 +7,12 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Représente un critère de recherche single.
+ * Parse les paramètres URL pour extraire le champ, l'opérateur et la valeur.
+ * Format: "field" -> EQ, "op_field" -> opérateur ET champ.
+ * Exemple: GET /game?name=dmc&gt_price=5000
+ */
 @AllArgsConstructor
 public class SearchParam<T> {
 
@@ -19,6 +25,11 @@ public class SearchParam<T> {
     @Getter @Setter
     private Object value;
 
+    /**
+     * Parse un seul paramètre URL.
+     * @param entry clé-valeur du paramètre
+     * @return SearchParam extrait
+     */
     private static <T> SearchParam<T> create(
             Map.Entry<String, String> entry
     ){
@@ -45,6 +56,12 @@ public class SearchParam<T> {
         return new SearchParam<T>(field, op, value);
     }
 
+    /**
+     * Parse tous les paramètres de requête en SearchParam.
+     * Ignore page, size, sort (paramètres de pagination).
+     * @param params Map complète des query parameters
+     * @return List de SearchParam extraits
+     */
     public static <T> List<SearchParam<T>> create(
             Map<String, String> params
     ){

@@ -3,7 +3,7 @@ package be.bstorm.tf_java_2026_introspringapi.api.filters;
 import be.bstorm.tf_java_2026_introspringapi.api.model.user.UserContext;
 import be.bstorm.tf_java_2026_introspringapi.api.utils.RateLimit;
 import be.bstorm.tf_java_2026_introspringapi.bll.exceptions.RateLimitException;
-import be.bstorm.tf_java_2026_introspringapi.bll.services.RateLimitService;
+import be.bstorm.tf_java_2026_introspringapi.bll.services.impls.RateLimitService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * Aspect AOP pour appliquer le rate limiting.
+ * Intercepte les méthodes annotées @RateLimit et valide la limite de débit.
+ * Identifie les utilisateurs par ID ou par IP pour les non-authentifiés.
+ */
 @Slf4j
 @Aspect
 @Component
@@ -24,6 +29,13 @@ public class RateLimitAspect {
 
     private final RateLimitService rateLimitService;
 
+    /**
+     * Intercept les appels de méthode annotée @RateLimit AVANT exécution.
+     * Lève RateLimitException si la limite est dépassée.
+     * @param joinPoint contexte AOP
+     * @param rateLimit annotation @RateLimit
+     * @throws RateLimitException si limite dépassée
+     */
     @Before("@annotation(rateLimit)")
     public void enforceRateLimit(JoinPoint joinPoint, RateLimit rateLimit) throws RateLimitException {
         String identifier = extractIdentifier();
@@ -44,6 +56,12 @@ public class RateLimitAspect {
         }
     }
 
+    /**
+     * Extrait un identifiant unique pour le rate limiting.
+     * Utilisateurs authentifiés: user_<id>
+     * Non authentifiés: ip_<address>
+     * @return identifiant unique
+     */
     private String extractIdentifier() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -57,6 +75,11 @@ public class RateLimitAspect {
         return "ip_" + getClientIp();
     }
 
+    /**
+     * Récupère l'adresse IP du client.
+     * Vérifieet X-Forwarded-For (proxy), X-Real-IP (nginx), puis RemoteAddr.
+     * @return adresse IP
+     */
     private String getClientIp() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
@@ -78,6 +101,12 @@ public class RateLimitAspect {
         return "unknown";
     }
 
+    /**
+     * Extrait le nom de l'endpoint depuis le JoinPoint.
+     * Format: com.example.Controller.methodName
+     * @param joinPoint contexte AOP
+     * @return nom de l'endpoint
+     */
     private String extractEndpoint(JoinPoint joinPoint) {
         return joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
     }
